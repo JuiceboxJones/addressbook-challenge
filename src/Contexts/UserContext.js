@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 
 const UserContext = React.createContext({
   error: '',
-  users: {},
+  users: [],
   nats: null,
   page: null,
   setError: () => {},
-  setUser: () => {},
+  setUsers: () => {},
   setNats: () => {},
   setPage: () => {}
 })
@@ -18,10 +18,11 @@ export class UserProvider extends Component {
     super(props)
     const state = {
       error: '',
-      users: {},
+      users: [],
       nats: null,
       page: null,
     }
+    this.state = state;
   }
 
   setError = error => {
@@ -31,6 +32,7 @@ export class UserProvider extends Component {
 
   setUsers = users => {
     this.setState({ ...this.state.users, users })
+    // console.log(this.state.users)
   }
 
   setNats = nats => {
@@ -47,6 +49,10 @@ export class UserProvider extends Component {
       users: this.state.user,
       nats: this.state.nats,
       page: this.state.page,
+      setError: this.setError,
+      setUsers: this.setUsers,
+      setNats: this.setNats,
+      setPage: this.setPage
     }
 
     return(
