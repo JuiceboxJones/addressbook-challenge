@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 const UserContext = React.createContext({
   error: '',
   users: [],
-  nats: null,
+  nats: '',
   page: null,
   setError: () => {},
   setUsers: () => {},
@@ -19,7 +19,7 @@ export class UserProvider extends Component {
     const state = {
       error: '',
       users: [],
-      nats: null,
+      nats: '',
       page: null,
     }
     this.state = state;
@@ -32,7 +32,7 @@ export class UserProvider extends Component {
 
   setUsers = users => {
     this.setState({ ...this.state.users, users })
-    // console.log(this.state.users)
+     console.log(this.state.users)
   }
 
   setNats = nats => {

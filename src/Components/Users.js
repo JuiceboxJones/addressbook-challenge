@@ -1,40 +1,45 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { Component } from 'react';
 import API_Service from '../Services/ApiService'
 import UserContext from '../Contexts/UserContext'
 
-export default function Users(props) {
+class User extends Component {
+  state = { 
+    loaded : false
+   }
+  static contextType = UserContext
 
-  const context = useContext(UserContext);
-  const [data, setData] = useState({users: {}, isFetching: false, page: 1})
+  componentDidMount(){
+    API_Service.getUsers(1, this.context.nats)
+    .then(data => this.context.setUsers(data.results))
+    .then(this.setState({loaded:true}))
+  }
 
-  useEffect(() => {
-    API_Service.getUsers(data.page).then(dat => {
-      context.setUsers(dat.results)
-    })
-  }, []);
+  //handle users in a child component so the context will be loaded and ready to use by the child
 
-  // useEffect(() =>{
-  //   handleFetch()
-  // }, [data.page])
+  handleDisplayUsers(){
+    if(this.context.users){
+    return this.context.users.map((user, index) => {
+     return( 
+      <li key={index}>
+        <img src={user.picture.thumbnail} alt='user-thumb'/>
+        <p className='user-first'>{user.name.first}</p>
+        <p className='user-last'>{user.name.last}</p>
+        <p className='user-usr-name'>{user.login.username}</p>
+        <p className='user-mail'>{user.email}</p>
+      </li>)
+    })} else{
+      return 'Loading...'
+    }
+  }
 
-  // function fetchLimit(){
-  //   const limit = 20;
-  //   let curr = data.page;
-  //   if(limit > curr){
-  //   setTimeout(setData({page: data.page + 1}))
-  //   console.log(data.page)
-  //   }
-  // }
-
-  // function handleFetch(){
-  //   setTimeout(fetchLimit(), 5000000)
-  // }
-
-
-
-  return(
-    <div>
-
-    </div>
-  )
+  render() { 
+    console.log(this.context)
+    return ( 
+      <div>
+        {this.handleDisplayUsers()}
+      </div>
+     );
+  }
 }
+ 
+export default User;
