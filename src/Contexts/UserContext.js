@@ -20,7 +20,7 @@ export class UserProvider extends Component {
       error: '',
       users: [],
       nats: '',
-      page: null,
+      page: 1,
     }
     this.state = state;
   }
@@ -31,7 +31,7 @@ export class UserProvider extends Component {
   }
 
   setUsers = users => {
-    this.setState({ ...this.state.users, users })
+    this.setState({users : [...this.state.users, users]})
      console.log(this.state.users)
   }
 

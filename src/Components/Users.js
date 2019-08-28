@@ -4,21 +4,63 @@ import UserContext from '../Contexts/UserContext'
 
 class User extends Component {
   state = { 
-    loaded : false
+    loaded : false,
+    users : [],
+    page: 1,
+    message: ''
    }
   static contextType = UserContext
 
   componentDidMount(){
-    API_Service.getUsers(1, this.context.nats)
-    .then(data => this.context.setUsers(data.results))
-    .then(this.setState({loaded:true}))
+    const cx = this.context
+    API_Service.getUsers(cx.page, cx.nats)
+    .then(data => this.setState({loaded:true, users: data.results}))
+    .then(() => cx.setUsers(this.state.users))
+    this.doStuff()
   }
 
-  //handle users in a child component so the context will be loaded and ready to use by the child
+  handleIdleLoad(){
+    const cx = this.context
+    let page = cx.page + 1;
+    setInterval( page <= 20 ? 
+    API_Service.getUsers(page, cx.nats)
+    .then(data => cx.setUsers(data.results))
+    .then(cx.setPage(page)) : 
+    'No More Results', 30000)
+  }
 
-  handleDisplayUsers(){
-    if(this.context.users){
-    return this.context.users.map((user, index) => {
+  doStuff = () => {
+    const cx = this.context
+
+    if( this.state.page <= 20 ){ 
+      API_Service.getUsers(this.state.page, cx.nats)
+      .then(data => cx.setUsers(data.results))
+      .then(this.setState({page: this.state.page + 1}))} 
+    else{ 
+      return 'No More Results'}
+    setInterval(this.doStuff, 2000)
+    console.log(this.state.page)
+    this.handleScroll()
+  }
+
+  handleScroll = () => {
+    const windowHeight = "innerHeight" in window ? window.innerHeight : document.documentElement.offsetHeight;
+    const body = document.body;
+    const html = document.documentElement;
+    const docHeight = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight,  html.scrollHeight, html.offsetHeight);
+    const windowBottom = windowHeight + window.pageYOffset;
+    if (windowBottom >= docHeight) {
+        alert('at bottom');
+    } else {
+      this.setState({
+        message:'not at bottom'
+      });
+    }
+  }
+
+  handleDisplayUsers = () =>{
+    if(this.state.users){
+    return this.state.users.map((user, index) => {
      return( 
       <li key={index}>
         <img src={user.picture.thumbnail} alt='user-thumb'/>
@@ -27,13 +69,11 @@ class User extends Component {
         <p className='user-usr-name'>{user.login.username}</p>
         <p className='user-mail'>{user.email}</p>
       </li>)
-    })} else{
+    })}
       return 'Loading...'
-    }
   }
 
   render() { 
-    console.log(this.context)
     return ( 
       <div>
         {this.handleDisplayUsers()}
